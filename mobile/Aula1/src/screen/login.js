@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   View,
@@ -13,12 +13,35 @@ import {
   SafeAreaView,
 } from "react-native-safe-area-context";
 
+import { buscarUsuario } from "../services/storage";
+
 export default function Login({ navigation, route }) {
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  function fazerLogin() {
+  useEffect(() => {
+    async function carregarUsuarioSalvo() {
+      const usuarioSalvo = await buscarUsuario();
+
+      if (usuarioSalvo && usuarioSalvo.email && usuarioSalvo.senha) {
+        navigation.reset({
+          index: 0,
+          routes: [{
+            name: "Tabs",
+            params: {
+              nome: usuarioSalvo.nome,
+              email: usuarioSalvo.email,
+            },
+          }],
+        });
+      }
+    }
+
+    carregarUsuarioSalvo();
+  }, [navigation]);
+
+  async function fazerLogin() {
 
     if (!email || !senha) {
 
@@ -30,16 +53,17 @@ export default function Login({ navigation, route }) {
       return;
     }
 
-    // Verifica se existem dados enviados pelo Cadastro
+    const usuarioContexto = route?.params ?? (await buscarUsuario());
+
     if (
-      route.params &&
-      email === route.params.email &&
-      senha === route.params.senha
+      usuarioContexto &&
+      email === usuarioContexto.email &&
+      senha === usuarioContexto.senha
     ) {
 
       navigation.navigate("Tabs", {
-        nome: route.params.nome,
-        email: route.params.email,
+        nome: usuarioContexto.nome,
+        email: usuarioContexto.email,
       });
 
     } else {

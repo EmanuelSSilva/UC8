@@ -13,9 +13,12 @@ import {
   SafeAreaView,
 } from "react-native-safe-area-context";
 
+import { removerUsuario } from "../services/storage";
+
 export default function Perfil({ route, navigation }) {
 
-  const { nome, email } = route.params;
+  const nome = route?.params?.nome ?? "Usuário";
+  const email = route?.params?.email ?? "";
 
   function mostrarInformacoes() {
     Alert.alert(
@@ -24,8 +27,13 @@ export default function Perfil({ route, navigation }) {
     );
   }
 
-  function voltarLogin() {
-    navigation.navigate("Login");
+  async function voltarLogin() {
+    await removerUsuario();
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Login" }],
+    });
   }
 
   return (

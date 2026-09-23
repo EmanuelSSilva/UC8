@@ -13,13 +13,15 @@ import {
   SafeAreaView,
 } from "react-native-safe-area-context";
 
+import { salvarUsuario } from "../services/storage";
+
 export default function Cadastro({ navigation }) {
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  function cadastrar() {
+  async function cadastrar() {
 
     if (!nome || !email || !senha) {
 
@@ -31,16 +33,31 @@ export default function Cadastro({ navigation }) {
       return;
     }
 
-    Alert.alert(
-      "Sucesso",
-      "Cadastro realizado!"
-    );
+    try {
+      const usuario = {
+        nome,
+        email,
+        senha,
+      };
 
-    navigation.navigate("Login", {
-      nome: nome,
-      email: email,
-      senha: senha,
-    });
+      await salvarUsuario(usuario);
+
+      Alert.alert(
+        "Sucesso",
+        "Cadastro realizado!"
+      );
+
+      navigation.navigate("Login", {
+        nome: nome,
+        email: email,
+        senha: senha,
+      });
+    } catch (error) {
+      Alert.alert(
+        "Erro",
+        "Não foi possível salvar o cadastro."
+      );
+    }
   }
 
   return (
